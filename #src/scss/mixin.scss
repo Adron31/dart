@@ -1,0 +1,26 @@
+// BGD color-gradient===============================================
+@mixin grad($alfa: 0.85) {
+   background: linear-gradient(-53deg, rgba(0, 184, 212, $alfa) 0%, rgba(29, 233, 182, $alfa) 100%);
+   background: -webkit-linear-gradient(-53deg, rgba(0, 184, 212, $alfa) 0%, rgba(29, 233, 182, $alfa) 100%);
+   background: -moz-linear-gradient(-53deg, rgba(0, 184, 212, $alfa) 0%, rgba(29, 233, 182, $alfa) 100%);
+}
+
+// adaptiv font-size================================================================
+@mixin adaptiv-fz($fz-large, $fz-small) {
+   $add-size: $fz-large - $fz-small;
+   $delta-w: $mw - $minwidth;
+   font-size: calc(#{$fz-small + px} + #{$add-size} * ((100vw - #{$minwidth + px}) / #{$delta-w}));
+   @media (min-width: $mw + px) {
+      font-size: $fz-large + px;
+   }
+}
+
+// adaptiv line-height================================================================
+@mixin adaptiv-lh($lh-large, $lh-small) {
+   $add-size: $lh-large - $lh-small;
+   $delta-w: $mw - $minwidth;
+   line-height: calc(#{$lh-small + px} + #{$add-size} * ((100vw - #{$minwidth + px}) / #{$delta-w}));
+   @media (min-width: $mw + px) {
+      line-height: $lh-large + px;
+   }
+}

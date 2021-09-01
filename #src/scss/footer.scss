@@ -1,0 +1,126 @@
+.footer {
+   width: 100%;
+   height: 300px;
+   padding: 100px 0;
+   background-color: $main-1-clr;
+   &__row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+   }
+
+   &__column {
+      flex: 0 1 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+   }
+
+   &__logo {
+      margin: 0 0 52px;
+   }
+
+   &__links {
+      display: flex;
+      margin: 0 -22px;
+      li {
+         position: relative;
+         padding: 0 22px;
+         &:after {
+            content: '';
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translate(50%, -30%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #fff;
+         }
+         &:last-child::after {
+            display: none;
+         }
+         a {
+            font-size: $secondery-txt-sz + px;
+            line-height: 25px;
+            font-weight: 400;
+            color: $footer-link-clr;
+         }
+      }
+   }
+
+   &__menu {
+      align-self: flex-end;
+      margin: 0 0 60px;
+      ul {
+          display: flex;
+         justify-content: center;
+         align-items: center;
+         li {
+            padding: 0 25px;
+            &:last-child {
+               padding-right: 0;
+            }
+            &:first-child {
+               padding-left: 0;
+            }
+            a {
+               font-size: $main-txt-sz + px;
+               color: $main-2-clr;
+            }
+         }
+      }
+   }
+
+   &__social {
+      align-self: flex-end;
+   }
+
+   @media (max-width: $md2) {
+      padding: 50px 0;
+      &__row {
+         justify-content: center;
+      }
+      &__column {
+         flex: 0 1 100%;
+         align-items: center;
+      }
+      &__logo {
+         margin: 0 0 40px;
+      }
+      &__links {
+         margin: 0 -22px 40px;
+      }
+      &__menu {
+         align-self: center;
+         margin: 0 0 40px;
+      }
+      &__social {
+         align-self: center;
+      }
+   }
+   @media (max-width: $md4) {
+      &__menu > ul > li {
+         padding: 0 15px;
+         &:last-child {
+            padding-right: 0;
+         }
+         &:first-child {
+            padding-left: 0;
+         }
+      }
+   }
+   @media (max-width: $md5) {
+      height: auto;
+      &__links {
+         margin: 0 -15px 40px;
+         li {
+            padding: 0 15px;
+         }
+      }
+      &__menu {
+         display: none;
+      }
+   }
+}
