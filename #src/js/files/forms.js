@@ -1,108 +1,135 @@
+const form = $('form');
+const popupOpenTimeDelay = 6000;
+let timerId = null;
 
-let form = document.getElementById('form');
-form.addEventListener('submit', formSend);
+const popupClickHandler = function (evt) {
+   if (evt.target !== $(this).find('.popup__body')[0]) {
+      popupMessageClose();
+   }
+};
+function popupMessageOpen (message) {
+   $('#popup-message').find('.popup__content').html(message);
+   $('#popup-message').addClass('open');
+   $('#popup-message').on('click', popupClickHandler);
+   $('body').addClass('lock');
+   timerId = setTimeout(popupMessageClose, popupOpenTimeDelay);
+}
+function popupMessageClose () {
+   if (timerId) {
+      clearTimeout(timerId);
+      timerId = null;
+   }
+   $('#popup-message').off('click', popupClickHandler);
+   $('body').removeClass('lock');
+   $('#popup-message').removeClass('open');
+}
 
+form.submit(function (evt) {
+   formSubmitHandler($(this), evt);
+});
 
-async function formSend(e) {
-   e.preventDefault();
+function formSubmitHandler (form, evt) {
+   evt.preventDefault();
+   const validateSuccess = formValidate();
+   const messageSubmit = form.attr('data-message') ? form.attr('data-message') : 'Form sent';
+   const formData = new FormData(form[0]);
 
-   let error = formValidate();
+   if (validateSuccess) {
+      form.addClass('_sending');
 
-   let formData = new FormData(form);
+      $.ajax({
+         url: 'PHP/sendmail.php',
+         type: 'POST',
+         data: formData,
+         contentType: false,
+         cache: false,
+         processData: false,
 
-   if (error === 0) {
-      form.classList.add('_sending');
+      }).done(function () {
+         popupMessageOpen(messageSubmit);
 
-      let response = await fetch('sendmail.php', {
-         method: 'POST',
-         body: formData
+      }).fail(function (xhr, status, err) {
+         popupMessageOpen(`Ошибка отправки <br> ${status} ${xhr.status}`);
+
+      }).always(function () {
+         form[0].reset();
+         form.removeClass('_sending');
+         formRemoveSuccess(form.find('._success'));
       });
 
-      if (response.ok) {
-         let result = await response.json();
-         alert(result.message);
-         form.reset();
-         form.classList.remove('_sending');
-      } else {
-         alert('Error');
-         form.classList.remove('_sending');
-      }
-
    } else {
-      alert('Fill in the required fields');
+      popupMessageOpen('Fill in the required fields');
    }
-}
+};
 
-function formValidate() {
+
+function formValidate () {
    let error = 0;
-   let formReq = document.querySelectorAll('._req');
-   for (let index = 0; index < formReq.length; index++) {
-      const input = formReq[index];
-      formRemoveError(input);
+   const inputsReq = form.find('._req');
 
+   inputsReq.each(function () {
+      formRemoveError($(this));
 
-      if (input.classList.contains('_email')) {
-         if (emailTest(input)) {
-            formAddError(input);
-            formRemoveSuccess(input);
+      if ($(this).hasClass('_email')) {
+         if (emailTest($(this))) {
+            formAddError($(this));
+            formRemoveSuccess($(this));
             error++;
          }
-      } else if (input.getAttribute('type') === 'checkbox' && input.checked === false) {
-         formAddError(input);
+      } else if ($(this).attr('type') === 'checkbox' && $(this).attr('checked') !== 'checked') {
+         formAddError($(this));
          error++;
       } else {
-         if (input.value === '') {
-            formAddError(input);
-            formRemoveSuccess(input)
+         if ($(this).val() === '') {
+            formAddError($(this));
+            formRemoveSuccess($(this));
             error++;
          }
       }
-   }
-   return error;
+   });
+   return error === 0 ? true : false;
 }
 
-function inputSuccess() {
-   let inputs = form.querySelectorAll('._req');
-   let er = 0;
-   for (let index = 0; index < inputs.length; index++) {
-      const input = inputs[index];
-      input.addEventListener("input", function () {
-         if (input.validity.valid) {
-            if (input.classList.contains('_error')) {
-               er = 1
-               formRemoveError(input);
-            }
-            formAddSuccess(input);
+function inputSuccess () {
+   const inputsReq = form.find('._req');
+   let err = 0;
+
+   inputsReq.change(function () {
+      if ($(this)[0].validity.valid) {
+         if ($(this).hasClass('_error')) {
+            err = 1;
+            formRemoveError($(this));
          }
-         if (input.value === '' || input.value == '[A-Za-z]') {
-            formRemoveSuccess(input);
-            if (er) {
-               formAddError(input);
-            }
+
+         formAddSuccess($(this));
+      }
+
+      if ($(this).val() === '' || $(this).val() == '[A-Za-z]') {
+         formRemoveSuccess($(this));
+
+         if (err) {
+            formAddError($(this));
          }
-      }, false);
-   }
+      }
+   });
 }
 inputSuccess();
 
-function formAddError(input) {
-   input.parentElement.classList.add('_error');
-   input.classList.add('_error');
+function formAddError (input) {
+   input.parent().addClass('_error');
+   input.addClass('_error');
+}
+function formRemoveError (input) {
+   input.parent().removeClass('_error');
+   input.removeClass('_error');
+}
+function emailTest (input) {
+   return !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/.test(input.val());
+}
+function formAddSuccess (input) {
+   input.addClass('_success');
+}
+function formRemoveSuccess (input) {
+   input.removeClass('_success');
 }
 
-function formRemoveError(input) {
-   input.parentElement.classList.remove('_error');
-   input.classList.remove('_error');
-}
-
-function emailTest(input) {
-   return !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/.test(input.value);
-}
-
-function formAddSuccess(input) {
-   input.classList.add('_success');
-}
-
-function formRemoveSuccess(input) {
-   input.classList.remove('_success');
-}
