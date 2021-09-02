@@ -76,7 +76,8 @@ function formValidate () {
             formRemoveSuccess($(this));
             error++;
          }
-      } else if ($(this).attr('type') === 'checkbox' && $(this).attr('checked') !== 'checked') {
+      } else if ($(this).attr('type') === 'checkbox' && !$(this)[0].checked) {
+         console.log($(this)[0].checked);
          formAddError($(this));
          error++;
       } else {
